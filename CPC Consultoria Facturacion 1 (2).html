@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Facturación — CPC × Osana</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A5CFF;--navy:#0B1829;--slate:#64748B;
+  --amber:#F59E0B;--red:#EF4444;
+  --bg:#F8F9FC;--white:#fff;--border:rgba(0,0,0,.07);
+  --font:'DM Sans',system-ui,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);padding:0;margin:0}
+*{font-family:var(--font)}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;background:var(--white);border-bottom:.5px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-pills{display:flex;gap:6px}
+.pill{min-width:30px;height:30px;padding:0 12px;border-radius:6px;border:.5px solid var(--border);background:var(--white);font-size:11px;font-weight:600;color:var(--slate);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.pill.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.nbtn{display:flex;align-items:center;gap:6px;padding:6px 18px;border-radius:8px;border:.5px solid var(--border);background:var(--white);font-size:13px;font-weight:500;color:var(--navy);cursor:pointer;transition:background .2s}
+.nbtn:hover{background:var(--bg)}
+.nbtn:disabled{opacity:.3;cursor:default}
+.ninfo{font-size:12px;color:var(--slate);font-weight:500}
+
+/* SLIDES */
+.slide{display:none;padding:2.5rem 2.5rem 2rem;min-height:calc(100vh - 54px);background:var(--bg)}
+.slide.on{display:block}
+
+/* slide inner card */
+.card{background:var(--white);border-radius:16px;border:.5px solid var(--border);padding:2rem 2.5rem;position:relative;overflow:hidden;max-width:1100px;margin:0 auto}
+.accent{position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue)}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;margin-bottom:1rem}
+h1{font-size:1.75rem;font-weight:600;letter-spacing:-.03em;margin-bottom:.25rem;line-height:1.15;color:var(--navy)}
+.ssub{font-size:.83rem;color:var(--slate);margin-bottom:1.6rem}
+
+/* COVER */
+.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:500px;text-align:center}
+.cover-logos{display:flex;align-items:center;justify-content:center;margin-bottom:2.4rem}
+.lname{font-size:1.5rem;font-weight:700;color:var(--navy);letter-spacing:-.04em}
+.lsep{width:1px;height:50px;background:#CBD5E1;margin:0 1.8rem}
+.lsub{font-size:.9rem;font-weight:500;color:var(--slate)}
+.cover-title{font-size:2.3rem;font-weight:700;letter-spacing:-.04em;margin-bottom:.5rem;color:var(--navy)}
+.cover-subt{font-size:.9rem;color:var(--slate);margin-bottom:1.8rem}
+.cover-line{width:68px;height:2px;background:var(--blue);border-radius:2px;margin:0 auto .9rem}
+.cover-date{font-size:.82rem;color:var(--slate);font-weight:500;letter-spacing:.04em}
+.cover-pills{display:flex;gap:8px;justify-content:center;margin-top:1.6rem;flex-wrap:wrap}
+.ap{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;border:.5px solid;text-transform:uppercase;letter-spacing:.05em}
+
+/* FLOW SLIDE */
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.6rem}
+.hdr-tag{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--slate);margin-bottom:4px}
+.hdr-title{font-size:1.2rem;font-weight:600;letter-spacing:-.02em;color:var(--navy);line-height:1.2}
+.hdr-pills{display:flex;gap:6px}
+.hp{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;border:.5px solid;text-transform:uppercase;letter-spacing:.04em}
+
+.flow{display:flex;align-items:stretch;gap:0;margin-bottom:1.3rem}
+.step-wrap{flex:1;display:flex;flex-direction:column;align-items:stretch}
+.connector{width:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.connector svg{width:18px;height:18px;opacity:.28}
+.step-btn{width:100%;height:100%;border:none;background:none;cursor:pointer;padding:0;font-family:var(--font)}
+.step-box{height:100px;border-radius:10px;padding:12px 10px;border:.5px solid;transition:all .18s;position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.step-box:hover{box-shadow:0 2px 10px rgba(0,0,0,.09)}
+.step-box.active{box-shadow:0 3px 14px rgba(0,0,0,.1)}
+.step-box.active::after{content:'';position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent}
+.sn{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;border:.5px solid;margin-bottom:8px}
+.st{font-size:11.5px;font-weight:600;line-height:1.3}
+.sd{font-size:9.5px;margin-top:4px;line-height:1.35;opacity:.7}
+
+.adm .step-box{background:#EFF6FF;border-color:#93C5FD}
+.adm .step-box.active{background:#DBEAFE;border-color:#3B82F6;border-width:1px}
+.adm .step-box.active::after{border-top:10px solid #DBEAFE}
+.adm .sn{background:#DBEAFE;border-color:#93C5FD;color:#1D4ED8}
+.adm .st{color:#1E3A8A}
+.adm .sd{color:#3B82F6}
+.ges .step-box{background:#FFFBEB;border-color:#FCD34D}
+.ges .step-box.active{background:#FEF3C7;border-color:#F59E0B;border-width:1px}
+.ges .step-box.active::after{border-top:10px solid #FEF3C7}
+.ges .sn{background:#FEF3C7;border-color:#FCD34D;color:#92400E}
+.ges .st{color:#78350F}
+.ges .sd{color:#D97706}
+.fac .step-box{background:#FEF2F2;border-color:#FCA5A5}
+.fac .step-box.active{background:#FEE2E2;border-color:#EF4444;border-width:1px}
+.fac .step-box.active::after{border-top:10px solid #FEE2E2}
+.fac .sn{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B}
+.fac .st{color:#7F1D1D}
+.fac .sd{color:#EF4444}
+
+.detail{border-radius:12px;border:.5px solid var(--border);padding:18px 20px;transition:border-color .2s;display:none;margin-bottom:.8rem}
+.detail.show{display:block}
+.detail.adm-on{border-color:#93C5FD}
+.detail.ges-on{border-color:#FCD34D}
+.detail.fac-on{border-color:#FCA5A5}
+.detail.sop-on{border-color:#C4B5FD}
+.det-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;padding-bottom:12px;border-bottom:.5px solid var(--border)}
+.det-tag{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.det-title{font-size:1.05rem;font-weight:600;color:var(--navy);letter-spacing:-.02em;line-height:1.2;margin-bottom:3px}
+.det-owner{font-size:11px;color:var(--slate)}
+.ffilters{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.ff{padding:3px 9px;border-radius:20px;border:.5px solid var(--border);background:transparent;color:var(--slate);font-size:10px;font-family:var(--font);cursor:pointer;transition:all .15s;white-space:nowrap}
+.ff:hover{border-color:rgba(0,0,0,.14);color:var(--navy)}
+.ff.on{background:var(--bg);color:var(--navy);border-color:rgba(0,0,0,.16);font-weight:600}
+.plist{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+.prow{display:flex;gap:8px;align-items:flex-start}
+.pb{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.05em;white-space:nowrap;flex-shrink:0;margin-top:2px;text-transform:uppercase}
+.pb-c{background:#FEF2F2;color:#B91C1C}
+.pb-p{background:#FFFBEB;color:#B45309}
+.pb-s{background:#EFF6FF;color:#1D4ED8}
+.pb-o{background:#F0FDF4;color:#15803D}
+.ptx{font-size:11.5px;color:var(--slate);line-height:1.55}
+.det-empty{display:flex;align-items:center;justify-content:center;min-height:100px;font-size:12px;color:var(--slate);gap:8px;opacity:.6}
+
+/* SOPORTE */
+.sop-section{margin-top:1rem}
+.sop-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#7C3AED;margin-bottom:10px}
+.sop-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.6rem}
+.sop-card{background:#F5F3FF;border:.5px solid #C4B5FD;border-radius:10px;padding:12px 14px;cursor:pointer;transition:background .2s,border-color .2s}
+.sop-card:hover,.sop-card.active{background:#EDE9FE;border-color:#7C3AED}
+.sop-name{font-size:12.5px;font-weight:600;color:#3B0764}
+.sop-role{font-size:11px;color:#7C3AED;margin-top:2px}
+.sop-flow{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--slate);margin-bottom:.4rem}
+.sop-fl{flex:1;height:1px;background:#C4B5FD}
+
+/* REFERENCIA SLIDE */
+.sec-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate);margin-bottom:.65rem;margin-top:1rem}
+.areas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:.2rem}
+.acard{border-radius:10px;padding:1rem 1.1rem;border:.5px solid}
+.acard.adm{background:#EFF6FF;border-color:#93C5FD;color:#1E3A8A}
+.acard.ges{background:#FFFBEB;border-color:#FCD34D;color:#78350F}
+.acard.fac{background:#FEF2F2;border-color:#FCA5A5;color:#7F1D1D}
+.acard-name{font-size:.75rem;font-weight:700;margin-bottom:.25rem}
+.acard-desc{font-size:.7rem;line-height:1.5;opacity:.8}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.6rem}
+.sgcard{background:#F5F3FF;border:.5px solid #C4B5FD;border-radius:10px;padding:1rem 1.1rem}
+.sgname{font-size:.75rem;font-weight:700;color:#3B0764;margin-bottom:.2rem}
+.sgdesc{font-size:.72rem;color:#7C3AED;line-height:1.5}
+.sflow{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--slate);margin-bottom:1rem;padding:.3rem 0}
+.sfl{flex:1;height:1px;background:#C4B5FD}
+.pleg{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem}
+.pli{background:var(--bg);border-radius:8px;padding:.7rem .8rem;display:flex;align-items:flex-start;gap:8px}
+.pld{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.pll{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.pld2{font-size:10.5px;color:var(--slate);line-height:1.4}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:1rem}
+.ins{background:var(--bg);border-radius:12px;padding:1rem 1.2rem}
+.ins-bar{width:20px;height:3px;border-radius:2px;margin-bottom:.5rem}
+.ins-title{font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:.2rem}
+.ins-text{font-size:.78rem;color:var(--slate);line-height:1.55}
+
+/* LEGEND */
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding-top:.9rem;border-top:.5px solid var(--border);margin-top:.5rem}
+.li{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--slate)}
+.ld{width:8px;height:8px;border-radius:50%}
+
+/* kbd */
+.kbd-hint{position:fixed;bottom:18px;right:20px;font-size:11px;color:var(--slate);display:flex;gap:5px;align-items:center;background:var(--white);padding:6px 10px;border-radius:8px;border:.5px solid var(--border)}
+.kbd{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border:.5px solid var(--border);border-radius:4px;font-size:10px;background:var(--white)}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-pills" id="np"></div>
+  <span class="ninfo" id="ni">1 / 3</span>
+  <div style="display:flex;gap:8px">
+    <button class="nbtn" id="bp" disabled onclick="go(-1)">&#8592; Anterior</button>
+    <button class="nbtn" id="bn" onclick="go(1)">Siguiente &#8594;</button>
+  </div>
+</div>
+
+<!-- SLIDE 0: COVER -->
+<div class="slide on" id="s0">
+  <div class="card">
+    <div class="accent"></div>
+    <div class="cover">
+      <div class="cover-logos">
+        <span class="lname">Osana</span>
+        <div class="lsep"></div>
+        <span class="lsub">Clínica del Parque Centenario</span>
+      </div>
+      <div class="cover-title">Diagnóstico del proceso<br>de facturación</div>
+      <div class="cover-subt">Primera reunión con referentes · Hallazgos y puntos de dolor</div>
+      <div class="cover-line"></div>
+      <div class="cover-date">Mayo 2026</div>
+      <div class="cover-pills">
+        <span class="ap" style="background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8">Admisión</span>
+        <span class="ap" style="background:#FFFBEB;border-color:#FCD34D;color:#92400E">Centro de gestión</span>
+        <span class="ap" style="background:#FEF2F2;border-color:#FCA5A5;color:#991B1B">Facturación</span>
+        <span class="ap" style="background:#F5F3FF;border-color:#C4B5FD;color:#5B21B6">Comercial · Maestros</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 1: FLUJO INTERACTIVO -->
+<div class="slide" id="s1">
+  <div class="card">
+    <div class="accent"></div>
+    <div class="snum">01</div>
+    <h1>Flujo punta a punta del proceso de facturación</h1>
+    <div class="ssub">Clic en cada etapa para ver los puntos de dolor identificados en la primera reunión con Carolina Córdoba</div>
+
+    <!-- FLOW ROW -->
+    <div class="flow">
+      <div class="step-wrap adm" data-id="turno">
+        <button class="step-btn" onclick="selStep(this.closest('.step-wrap'))">
+          <div class="step-box"><div class="sn">1</div><div class="st">Generación del turno</div><div class="sd">Programado · Contact center · Autogestión</div></div>
+        </button>
+      </div>
+      <div class="connector"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step-wrap adm" data-id="admision">
+        <button class="step-btn" onclick="selStep(this.closest('.step-wrap'))">
+          <div class="step-box" style="border-width:1px"><div class="sn">2</div><div class="st">Admisión del paciente</div><div class="sd">Cobertura · Autorización · Vale</div></div>
+        </button>
+      </div>
+      <div class="connector"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step-wrap ges" data-id="medico">
+        <button class="step-btn" onclick="selStep(this.closest('.step-wrap'))">
+          <div class="step-box"><div class="sn">3</div><div class="st">Atención médica y registro</div><div class="sd">Firma · Informes · Documentación</div></div>
+        </button>
+      </div>
+      <div class="connector"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step-wrap ges" data-id="cgestion">
+        <button class="step-btn" onclick="selStep(this.closest('.step-wrap'))">
+          <div class="step-box" style="border-width:1px"><div class="sn">4</div><div class="st">Centro de gestión</div><div class="sd">Recibe · Ordena · Controla</div></div>
+        </button>
+      </div>
+      <div class="connector"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step-wrap fac" data-id="facturacion">
+        <button class="step-btn" onclick="selStep(this.closest('.step-wrap'))">
+          <div class="step-box"><div class="sn">5</div><div class="st">Facturación</div><div class="sd">Codificación · Presentación · Cierre</div></div>
+        </button>
+      </div>
+      <div class="connector"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step-wrap fac" data-id="financiador">
+        <button class="step-btn" onclick="selStep(this.closest('.step-wrap'))">
+          <div class="step-box" style="border-width:1px"><div class="sn">6</div><div class="st">Presentación al financiador</div><div class="sd">Obra social · Cobro o débito</div></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- DETAIL PANEL -->
+    <div class="detail" id="det">
+      <div class="det-empty" id="det-empty">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        Seleccioná un paso para ver sus puntos de dolor
+      </div>
+      <div id="det-content" style="display:none">
+        <div class="det-top">
+          <div>
+            <div class="det-tag" id="det-tag"></div>
+            <div class="det-title" id="det-title"></div>
+            <div class="det-owner" id="det-owner"></div>
+          </div>
+          <div class="ffilters" id="filters"></div>
+        </div>
+        <div class="plist" id="plist"></div>
+      </div>
+    </div>
+
+    <!-- SOPORTE DEL PROCESO -->
+    <div class="sop-section">
+      <div class="sop-label">Soporte del proceso</div>
+      <div class="sop-grid">
+        <div class="sop-card" data-id="comercial" onclick="selSop(this)">
+          <div class="sop-name">Comercial</div>
+          <div class="sop-role">Cierra convenios con financiadores</div>
+        </div>
+        <div class="sop-card" data-id="maestros" onclick="selSop(this)">
+          <div class="sop-name">Maestros</div>
+          <div class="sop-role">Parametriza el sistema — impacta en todo el flujo</div>
+        </div>
+      </div>
+      <div class="sop-flow">
+        <span>Comercial define</span><div class="sop-fl"></div>
+        <span>Maestros carga</span><div class="sop-fl"></div>
+        <span>El sistema refleja (o no) lo acordado</span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span class="li"><span class="ld" style="background:#DC2626"></span>Crítico</span>
+      <span class="li"><span class="ld" style="background:#D97706"></span>Proceso</span>
+      <span class="li"><span class="ld" style="background:#2563EB"></span>Sistema</span>
+      <span class="li"><span class="ld" style="background:#059669"></span>Oportunidad</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: REFERENCIA -->
+<div class="slide" id="s2">
+  <div class="card">
+    <div class="accent"></div>
+    <div class="snum">02</div>
+    <h1>Áreas dueñas y tipos de hallazgos</h1>
+    <div class="ssub">Referencia visual del diagnóstico — colores y responsables por etapa</div>
+
+    <div class="sec-lbl" style="margin-top:0">Áreas dueñas del proceso</div>
+    <div class="areas-grid">
+      <div class="acard adm"><div class="acard-name">Admisión</div><div class="acard-desc">Pasos 1 y 2. Turno y admisión completa del paciente (cobertura, autorización y vale).</div></div>
+      <div class="acard ges"><div class="acard-name">Centro de gestión</div><div class="acard-desc">Pasos 3 y 4. Seguimiento de atención médica y armado del expediente (~24 hs).</div></div>
+      <div class="acard fac"><div class="acard-name">Facturación</div><div class="acard-desc">Pasos 5 y 6. Codificación, presentación al financiador y seguimiento de cobro.</div></div>
+    </div>
+
+    <div class="sec-lbl">Stakeholders de soporte (impacto transversal)</div>
+    <div class="sgrid">
+      <div class="sgcard"><div class="sgname">Comercial</div><div class="sgdesc">Cierra convenios con financiadores. Alimenta a Maestros. Impacto indirecto pero estructural.</div></div>
+      <div class="sgcard"><div class="sgname">Maestros</div><div class="sgdesc">Carga la parametrización: nomencladores, reglas por financiador. Impacto directo en admisión y facturación.</div></div>
+    </div>
+    <div class="sflow"><span>Comercial define</span><div class="sfl"></div><span>Maestros carga</span><div class="sfl"></div><span>El sistema refleja (o no) lo acordado</span></div>
+
+    <div class="sec-lbl">Tipos de hallazgos</div>
+    <div class="pleg">
+      <div class="pli"><div class="pld" style="background:#DC2626"></div><div><div class="pll">Crítico</div><div class="pld2">Impacto económico directo. Genera débitos o pérdida de facturación.</div></div></div>
+      <div class="pli"><div class="pld" style="background:#D97706"></div><div><div class="pll">Proceso</div><div class="pld2">Ambigüedad de roles, falta de documentación o dependencia de personas clave.</div></div></div>
+      <div class="pli"><div class="pld" style="background:#2563EB"></div><div><div class="pll">Sistema</div><div class="pld2">Integración incompleta entre módulos o trabajo manual fuera del sistema.</div></div></div>
+      <div class="pli"><div class="pld" style="background:#059669"></div><div><div class="pll">Oportunidad</div><div class="pld2">Mejora concreta identificada que puede implementarse en el corto plazo.</div></div></div>
+    </div>
+
+    <div class="ins-grid">
+      <div class="ins">
+        <div class="ins-bar" style="background:#EF4444"></div>
+        <div class="ins-title">El problema no es solo operativo</div>
+        <div class="ins-text">Los hallazgos apuntan a un problema de diseño de proceso. La solución requiere ordenar primero, tecnología después.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-bar" style="background:#F59E0B"></div>
+        <div class="ins-title">45–60 días de demora</div>
+        <div class="ins-text">Entre la atención y la facturación. Admisión y centro de gestión cierran en ~24 hs. El cuello de botella está en facturación.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="kbd-hint">
+  <span class="kbd">&#8592;</span><span class="kbd">&#8594;</span> navegar
+</div>
+
+<script>
+var T=3,c=0;
+var pills=document.getElementById('np');
+for(var i=0;i<T;i++){
+  var p=document.createElement('button');
+  p.className='pill'+(i===0?' on':'');
+  p.textContent=i===0?'●':(i+1);
+  (function(n){p.onclick=function(){jump(n);};})(i);
+  pills.appendChild(p);
+}
+function upNav(){
+  document.getElementById('ni').textContent=(c+1)+' / '+T;
+  document.getElementById('bp').disabled=c===0;
+  document.getElementById('bn').disabled=c===T-1;
+  document.querySelectorAll('.pill').forEach(function(p,i){p.classList.toggle('on',i===c);});
+}
+function jump(n){
+  document.getElementById('s'+c).classList.remove('on');
+  c=n;
+  document.getElementById('s'+c).classList.add('on');
+  window.scrollTo(0,0);
+  upNav();
+}
+window.go=function(d){jump(c+d);};
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'&&c<T-1)jump(c+1);
+  else if(e.key==='ArrowLeft'&&c>0)jump(c-1);
+});
+
+var DATA={
+  turno:{tag:'Admisión · Paso 1',title:'Generación del turno',owner:'Área dueña: Admisión',area:'adm',items:[
+    {t:'p',txt:'El turno puede existir sin que la prestación esté validada o autorizada. "Se puede dar turno" no equivale a "se puede cobrar".'},
+    {t:'s',txt:'Múltiples canales de origen sin integración clara con el circuito de validación posterior.'}
+  ]},
+  admision:{tag:'Admisión · Paso 2',title:'Admisión del paciente',owner:'Área dueña: Admisión — incluye verificación, autorización y generación del vale',area:'adm',items:[
+    {t:'c',txt:'El admisionista trabaja bajo presión de fila y horario médico. Cualquier ambigüedad dispara errores que se amplifican hacia facturación.'},
+    {t:'c',txt:'Principal causa de débito: si no hay autorización correcta, la prestación avanza igual y genera pérdida económica al final del proceso.'},
+    {t:'c',txt:'PAMI: la OME debe existir, estar aceptada, validarse al admitir y transmitirse en facturación. Si cualquier eslabón falla, el débito es casi seguro.'},
+    {t:'p',txt:'Las normas operativas son genéricas o están mal redactadas, dejando las instrucciones libradas a interpretación individual.'},
+    {t:'p',txt:'No hay una regla clara sobre quién es responsable de gestionar la autorización cuando falta.'},
+    {t:'p',txt:'Órdenes con fecha vencida pueden ser admitidas sin detección automática, convirtiéndose en una fuente directa de débito.'},
+    {t:'p',txt:'Puede generarse un vale aunque la prestación no se realice o quede mal registrada. Si no se corrige genera ruido en facturación.'},
+    {t:'s',txt:'Errores en la carga de convenios en Maestros no son visibles hasta el momento de la validación.'},
+    {t:'o',txt:'El vale es el momento ideal para una validación automática que detecte faltantes antes de que avance el expediente.'}
+  ]},
+  medico:{tag:'Centro de gestión · Paso 3',title:'Atención médica y registro',owner:'Área dueña: Centro de gestión (seguimiento de documentación)',area:'ges',items:[
+    {t:'c',txt:'Informes no disponibles a tiempo. El faltante se detecta tarde, con poco margen antes del cierre de facturación.'},
+    {t:'p',txt:'No hay mecanismo formal para reclamarle al médico que complete la documentación. Depende de gestiones informales.'}
+  ]},
+  cgestion:{tag:'Centro de gestión · Paso 4',title:'Armado del expediente',owner:'Área dueña: Centro de gestión',area:'ges',items:[
+    {t:'c',txt:'Muchos expedientes incompletos sin seguimiento sistemático: firma, documentación, autorización vencida, informe pendiente.'},
+    {t:'p',txt:'El proceso depende de revisiones manuales. Trazabilidad débil entre admisión, módulo médico y centro de gestión.'},
+    {t:'s',txt:'Múltiples sistemas sin mapa de integración claro. Módulos viejos y nuevos que no dialogan de forma transparente.'},
+    {t:'o',txt:'Alertas tempranas de expedientes incompletos con responsable y plazo visible.'}
+  ]},
+  facturacion:{tag:'Facturación · Paso 5',title:'Facturación',owner:'Área dueña: Facturación',area:'fac',items:[
+    {t:'c',txt:'Demora de 45 a 60 días entre atención y facturación. La mayor parte del delay se origina en este tramo.'},
+    {t:'s',txt:'Trabajo manual fuera del sistema (Excel, papel). El sistema no genera los formatos que exige cada financiador.'},
+    {t:'p',txt:'Los requisitos de presentación por financiador no están documentados — viven en la cabeza de las personas.'}
+  ]},
+  financiador:{tag:'Facturación · Paso 6',title:'Presentación al financiador',owner:'Área dueña: Facturación',area:'fac',items:[
+    {t:'p',txt:'No hay seguimiento sistemático del estado de cada presentación: qué está cobrado, pendiente, rechazado o debitado.'},
+    {t:'o',txt:'Auditar liquidaciones para detectar débitos incorrectos y generar reclamos a tiempo.'}
+  ]},
+  comercial:{tag:'Soporte indirecto',title:'Comercial',owner:'Cierra convenios con financiadores y los traslada a Maestros. Impacto indirecto pero estructural.',area:'sop',items:[
+    {t:'c',txt:'Si lo acordado con el financiador no se traslada correctamente a Maestros, el admisionista trabaja con información incorrecta sin saberlo.'},
+    {t:'p',txt:'La brecha "lo que Comercial definió" vs "lo que el sistema refleja" genera débitos que nadie detecta hasta la liquidación.'}
+  ]},
+  maestros:{tag:'Soporte directo',title:'Maestros',owner:'Carga nomencladores, reglas por financiador y parametrización de prestaciones.',area:'sop',items:[
+    {t:'c',txt:'El sistema puede dejar avanzar una admisión aunque la práctica esté mal parametrizada, sin alertar a nadie en el flujo.'},
+    {t:'s',txt:'No hay validación automática que detecte inconsistencias entre lo cargado y lo que exige el financiador al presentar.'},
+    {t:'o',txt:'Cruzar la parametrización con los requisitos del financiador antes de que llegue a facturación.'}
+  ]}
+};
+var tagColors={adm:'#1A5CFF',ges:'#92400E',fac:'#991B1B',sop:'#7C3AED'};
+var bmap={c:'pb-c',p:'pb-p',s:'pb-s',o:'pb-o'};
+var bname={c:'Crítico',p:'Proceso',s:'Sistema',o:'Oportunidad'};
+
+function selStep(el){
+  document.querySelectorAll('.step-box').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.sop-card').forEach(function(b){b.classList.remove('active');});
+  el.querySelector('.step-box').classList.add('active');
+  showDet(el.dataset.id);
+}
+function selSop(el){
+  document.querySelectorAll('.step-box').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.sop-card').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  showDet(el.dataset.id);
+}
+function showDet(id){
+  var d=DATA[id];
+  var det=document.getElementById('det');
+  det.className='detail show '+d.area+'-on';
+  document.getElementById('det-empty').style.display='none';
+  document.getElementById('det-content').style.display='block';
+  document.getElementById('det-tag').textContent=d.tag;
+  document.getElementById('det-tag').style.color=tagColors[d.area];
+  document.getElementById('det-title').textContent=d.title;
+  document.getElementById('det-owner').textContent=d.owner;
+  var fr=document.getElementById('filters');
+  fr.innerHTML='';
+  ['all','c','p','s','o'].forEach(function(v){
+    var b=document.createElement('button');
+    b.className='ff'+(v==='all'?' on':'');
+    b.textContent=v==='all'?'Todos':bname[v];
+    b.onclick=function(){
+      fr.querySelectorAll('.ff').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      renderItems(d.items,v);
+    };
+    fr.appendChild(b);
+  });
+  renderItems(d.items,'all');
+}
+function renderItems(items,filter){
+  var pl=document.getElementById('plist');
+  pl.innerHTML='';
+  items.forEach(function(item){
+    var row=document.createElement('div');
+    row.className='prow';
+    if(filter!=='all'&&item.t!==filter) row.style.opacity='0.18';
+    row.innerHTML='<span class="pb '+bmap[item.t]+'">'+bname[item.t]+'</span><span class="ptx">'+item.txt+'</span>';
+    pl.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
